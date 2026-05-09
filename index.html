@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أداة إرسال كوزات الباثو</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 500px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin: auto;
+        }
+        h2 { text-align: center; color: #0088cc; }
+        input[type="text"] {
+            width: 100%; padding: 10px; margin-bottom: 15px;
+            border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;
+        }
+        .option-group {
+            display: flex; align-items: center; margin-bottom: 10px;
+            background: #f9f9f9; padding: 10px; border-radius: 5px;
+        }
+        .option-group input[type="radio"] {
+            margin-left: 10px; transform: scale(1.2);
+        }
+        .option-group input[type="text"] { margin-bottom: 0; }
+        button {
+            width: 100%; padding: 12px; background-color: #0088cc;
+            color: white; border: none; border-radius: 5px;
+            font-size: 16px; cursor: pointer; font-weight: bold;
+        }
+        button:hover { background-color: #006699; }
+        .save-note {
+            font-size: 12px; color: #666; text-align: center; margin-top: -10px; margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>أداة كوزات التليكرام</h2>
+    
+    <input type="text" id="botToken" placeholder="توكن البوت (Bot Token)">
+    <input type="text" id="chatId" placeholder="معرف القناة (مثال: @channel_username)">
+    <div class="save-note">سيتم حفظ التوكن ومعرف القناة تلقائياً في متصفحك</div>
+    
+    <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+    
+    <input type="text" id="question" placeholder="اكتب السؤال هنا..." required>
+    
+    <div class="option-group">
+        <input type="radio" name="correct" value="0" checked title="اختر إذا كان هذا الجواب الصحيح">
+        <input type="text" id="opt0" placeholder="الخيار الأول">
+    </div>
+    <div class="option-group">
+        <input type="radio" name="correct" value="1" title="اختر إذا كان هذا الجواب الصحيح">
+        <input type="text" id="opt1" placeholder="الخيار الثاني">
+    </div>
+    <div class="option-group">
+        <input type="radio" name="correct" value="2" title="اختر إذا كان هذا الجواب الصحيح">
+        <input type="text" id="opt2" placeholder="الخيار الثالث">
+    </div>
+    <div class="option-group">
+        <input type="radio" name="correct" value="3" title="اختر إذا كان هذا الجواب الصحيح">
+        <input type="text" id="opt3" placeholder="الخيار الرابع (اختياري)">
+    </div>
+
+    <button onclick="sendQuiz()">إرسال الكوز للقناة 🚀</button>
+</div>
+
+<script>
+    // استرجاع البيانات المحفوظة عند فتح الصفحة
+    window.onload = function() {
+        if(localStorage.getItem('savedBotToken')) {
+            document.getElementById('botToken').value = localStorage.getItem('savedBotToken');
+        }
+        if(localStorage.getItem('savedChatId')) {
+            document.getElementById('chatId').value = localStorage.getItem('savedChatId');
+        }
+    };
+
+    function sendQuiz() {
+        const token = document.getElementById('botToken').value.trim();
+        const chatId = document.getElementById('chatId').value.trim();
+        const question = document.getElementById('question').value.trim();
+        
+        // حفظ التوكن ومعرف القناة في المتصفح
+        if(token && chatId) {
+            localStorage.setItem('savedBotToken', token);
+            localStorage.setItem('savedChatId', chatId);
+        }
+
+        // جلب الخيارات المكتوبة فقط (تجاهل الحقول الفارغة)
+        let options = [];
+        let originalIndices = [];
+        for(let i=0; i<4; i++) {
+            let val = document.getElementById('opt'+i).value.trim();
+            if(val !== "") {
+                options.push(val);
+                originalIndices.push(i.toString());
+            }
+        }
+
+        // تحديد الجواب الصحيح
+        const selectedRadio = document.querySelector('input[name="correct"]:checked').value;
+        const correctIndex = originalIndices.indexOf(selectedRadio);
+
+        // التحقق من المدخلات
+        if(!token || !chatId || !question || options.length < 2) {
+            alert("رجاءً تأكد من إدخال التوكن، معرف القناة، السؤال، وخيارين على الأقل.");
+            return;
+        }
+        if(correctIndex === -1) {
+            alert("الخيار الذي حددته كجواب صحيح غير مكتوب!");
+            return;
+        }
+
+        // إرسال الطلب لـ Telegram API
+        const url = `https://api.telegram.org/bot${token}/sendPoll`;
+        const data = {
+            chat_id: chatId,
+            question: question,
+            options: JSON.stringify(options),
+            type: "quiz",
+            correct_option_id: correctIndex
+        };
+
+        fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(res => {
+            if(res.ok) {
+                alert("تم إرسال الكوز بنجاح! ✅");
+                // تصفير حقل السؤال والخيارات لتسهيل كتابة السؤال التالي
+                document.getElementById('question').value = ''; 
+                document.getElementById('opt0').value = '';
+                document.getElementById('opt1').value = '';
+                document.getElementById('opt2').value = '';
+                document.getElementById('opt3').value = '';
+                document.querySelector('input[name="correct"][value="0"]').checked = true;
+            } else {
+                alert("صار خطأ: " + res.description);
+            }
+        })
+        .catch(err => {
+            alert("خطأ بالاتصال بالانترنت أو السيرفر.");
+            console.error(err);
+        });
+    }
+</script>
+
+</body>
+</html>
