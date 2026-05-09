@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أداة إرسال كوزات الباثو</title>
+    <title>أداة إرسال كوزات </title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -18,7 +18,8 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             margin: auto;
         }
-        h2 { text-align: center; color: #0088cc; }
+        h2 { text-align: center; color: #0088cc; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #666; font-size: 14px; margin-bottom: 20px; }
         input[type="text"] {
             width: 100%; padding: 10px; margin-bottom: 15px;
             border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;
@@ -28,17 +29,17 @@
             background: #f9f9f9; padding: 10px; border-radius: 5px;
         }
         .option-group input[type="radio"] {
-            margin-left: 10px; transform: scale(1.2);
+            margin-left: 10px; transform: scale(1.2); cursor: pointer;
         }
         .option-group input[type="text"] { margin-bottom: 0; }
         button {
             width: 100%; padding: 12px; background-color: #0088cc;
             color: white; border: none; border-radius: 5px;
-            font-size: 16px; cursor: pointer; font-weight: bold;
+            font-size: 16px; cursor: pointer; font-weight: bold; margin-top: 10px;
         }
         button:hover { background-color: #006699; }
         .save-note {
-            font-size: 12px; color: #666; text-align: center; margin-top: -10px; margin-bottom: 15px;
+            font-size: 12px; color: #888; text-align: center; margin-top: -10px; margin-bottom: 15px;
         }
     </style>
 </head>
@@ -46,61 +47,67 @@
 
 <div class="container">
     <h2>أداة كوزات التليكرام</h2>
+    <div class="subtitle">خاصة بقناة: علم الامراض/المرحلة الثالثة</div>
     
     <input type="text" id="botToken" placeholder="توكن البوت (Bot Token)">
-    <input type="text" id="chatId" placeholder="معرف القناة (مثال: @channel_username)">
-    <div class="save-note">سيتم حفظ التوكن ومعرف القناة تلقائياً في متصفحك</div>
+    <div class="save-note">يُكتب مرة واحدة فقط وسيُحفظ في المتصفح (ويرجى عدم مشاركته لأي احد)</div>
     
     <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
     
     <input type="text" id="question" placeholder="اكتب السؤال هنا..." required>
     
+    <div class="save-note" style="margin-bottom: 10px; text-align: right; color: #444;">
+        * حدد الدائرة بجانب الجواب الصحيح. املأ خيارين على الأقل.
+    </div>
+
     <div class="option-group">
-        <input type="radio" name="correct" value="0" checked title="اختر إذا كان هذا الجواب الصحيح">
-        <input type="text" id="opt0" placeholder="الخيار الأول">
+        <input type="radio" name="correct" value="0" checked title="الجواب الصحيح">
+        <input type="text" id="opt0" placeholder="الخيار الأول (مطلوب)">
     </div>
     <div class="option-group">
-        <input type="radio" name="correct" value="1" title="اختر إذا كان هذا الجواب الصحيح">
-        <input type="text" id="opt1" placeholder="الخيار الثاني">
+        <input type="radio" name="correct" value="1" title="الجواب الصحيح">
+        <input type="text" id="opt1" placeholder="الخيار الثاني (مطلوب)">
     </div>
     <div class="option-group">
-        <input type="radio" name="correct" value="2" title="اختر إذا كان هذا الجواب الصحيح">
-        <input type="text" id="opt2" placeholder="الخيار الثالث">
+        <input type="radio" name="correct" value="2" title="الجواب الصحيح">
+        <input type="text" id="opt2" placeholder="الخيار الثالث (اختياري)">
     </div>
     <div class="option-group">
-        <input type="radio" name="correct" value="3" title="اختر إذا كان هذا الجواب الصحيح">
+        <input type="radio" name="correct" value="3" title="الجواب الصحيح">
         <input type="text" id="opt3" placeholder="الخيار الرابع (اختياري)">
+    </div>
+    <div class="option-group">
+        <input type="radio" name="correct" value="4" title="الجواب الصحيح">
+        <input type="text" id="opt4" placeholder="الخيار الخامس (اختياري)">
     </div>
 
     <button onclick="sendQuiz()">إرسال الكوز للقناة 🚀</button>
 </div>
 
 <script>
-    // استرجاع البيانات المحفوظة عند فتح الصفحة
+    // معرف القناة ثابت ومدمج بالكود (مخفي عن الدكتورة)
+    const CHAT_ID = "-1003123625903";
+
+    // استرجاع توكن البوت المحفوظ عند فتح الصفحة
     window.onload = function() {
         if(localStorage.getItem('savedBotToken')) {
             document.getElementById('botToken').value = localStorage.getItem('savedBotToken');
-        }
-        if(localStorage.getItem('savedChatId')) {
-            document.getElementById('chatId').value = localStorage.getItem('savedChatId');
         }
     };
 
     function sendQuiz() {
         const token = document.getElementById('botToken').value.trim();
-        const chatId = document.getElementById('chatId').value.trim();
         const question = document.getElementById('question').value.trim();
         
-        // حفظ التوكن ومعرف القناة في المتصفح
-        if(token && chatId) {
+        // حفظ التوكن في المتصفح
+        if(token) {
             localStorage.setItem('savedBotToken', token);
-            localStorage.setItem('savedChatId', chatId);
         }
 
         // جلب الخيارات المكتوبة فقط (تجاهل الحقول الفارغة)
         let options = [];
         let originalIndices = [];
-        for(let i=0; i<4; i++) {
+        for(let i=0; i<5; i++) { // التكرار صار لـ 5 خيارات
             let val = document.getElementById('opt'+i).value.trim();
             if(val !== "") {
                 options.push(val);
@@ -113,19 +120,19 @@
         const correctIndex = originalIndices.indexOf(selectedRadio);
 
         // التحقق من المدخلات
-        if(!token || !chatId || !question || options.length < 2) {
-            alert("رجاءً تأكد من إدخال التوكن، معرف القناة، السؤال، وخيارين على الأقل.");
+        if(!token || !question || options.length < 2) {
+            alert("رجاءً تأكد من إدخال التوكن، السؤال، وخيارين على الأقل.");
             return;
         }
         if(correctIndex === -1) {
-            alert("الخيار الذي حددته كجواب صحيح غير مكتوب!");
+            alert("الخيار الذي حددته كجواب صحيح غير مكتوب! (حقل فارغ)");
             return;
         }
 
         // إرسال الطلب لـ Telegram API
         const url = `https://api.telegram.org/bot${token}/sendPoll`;
         const data = {
-            chat_id: chatId,
+            chat_id: CHAT_ID, // استخدام المعرف المدمج
             question: question,
             options: JSON.stringify(options),
             type: "quiz",
@@ -141,12 +148,11 @@
         .then(res => {
             if(res.ok) {
                 alert("تم إرسال الكوز بنجاح! ✅");
-                // تصفير حقل السؤال والخيارات لتسهيل كتابة السؤال التالي
+                // تصفير جميع الحقول لتسهيل كتابة السؤال التالي
                 document.getElementById('question').value = ''; 
-                document.getElementById('opt0').value = '';
-                document.getElementById('opt1').value = '';
-                document.getElementById('opt2').value = '';
-                document.getElementById('opt3').value = '';
+                for(let i=0; i<5; i++) {
+                    document.getElementById('opt'+i).value = '';
+                }
                 document.querySelector('input[name="correct"][value="0"]').checked = true;
             } else {
                 alert("صار خطأ: " + res.description);
