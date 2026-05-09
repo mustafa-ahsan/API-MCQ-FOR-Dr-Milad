@@ -3,44 +3,258 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أداة إرسال كوزات </title>
+    <title>أداة إرسال كوزات التليكرام</title>
+    <!-- استدعاء خط Cairo للحصول على مظهر عربي عصري -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #3b82f6; /* أزرق مريح */
+            --primary-hover: #2563eb;
+            --success-color: #10b981; /* أخضر للنجاح */
+            --error-color: #ef4444; /* أحمر للأخطاء */
+            --bg-color: #f1f5f9; /* خلفية هادئة جداً */
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f5;
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
             padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
+
         .container {
+            background: var(--card-bg);
+            width: 100%;
             max-width: 500px;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            margin: auto;
+            padding: 30px 25px;
+            border-radius: var(--radius);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+            position: relative;
         }
-        h2 { text-align: center; color: #0088cc; margin-bottom: 5px; }
-        .subtitle { text-align: center; color: #666; font-size: 14px; margin-bottom: 20px; }
+
+        h2 {
+            text-align: center;
+            color: var(--primary-color);
+            margin: 0 0 5px 0;
+            font-weight: 700;
+            font-size: 24px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-main);
+        }
+
         input[type="text"] {
-            width: 100%; padding: 10px; margin-bottom: 15px;
-            border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 14px;
+            box-sizing: border-box;
+            transition: var(--transition);
+            background-color: #f8fafc;
         }
-        .option-group {
-            display: flex; align-items: center; margin-bottom: 10px;
-            background: #f9f9f9; padding: 10px; border-radius: 5px;
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background-color: #fff;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
-        .option-group input[type="radio"] {
-            margin-left: 10px; transform: scale(1.2); cursor: pointer;
-        }
-        .option-group input[type="text"] { margin-bottom: 0; }
-        button {
-            width: 100%; padding: 12px; background-color: #0088cc;
-            color: white; border: none; border-radius: 5px;
-            font-size: 16px; cursor: pointer; font-weight: bold; margin-top: 10px;
-        }
-        button:hover { background-color: #006699; }
+
         .save-note {
-            font-size: 12px; color: #888; text-align: center; margin-top: -10px; margin-bottom: 15px;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 6px;
+            display: block;
         }
+
+        .divider {
+            height: 1px;
+            background-color: var(--border-color);
+            margin: 25px 0;
+            border: none;
+        }
+
+        .options-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-group {
+            display: flex;
+            align-items: center;
+            background: #f8fafc;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+
+        .option-group.active {
+            background-color: #f0fdf4;
+            border-color: var(--success-color);
+            box-shadow: 0 2px 4px rgba(16, 185, 129, 0.1);
+        }
+
+        .option-group input[type="radio"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            margin-left: 15px;
+            outline: none;
+            cursor: pointer;
+            position: relative;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+
+        .option-group input[type="radio"]:checked {
+            border-color: var(--success-color);
+        }
+
+        .option-group input[type="radio"]:checked::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 10px;
+            height: 10px;
+            background-color: var(--success-color);
+            border-radius: 50%;
+        }
+
+        .option-group input[type="text"] {
+            border: none;
+            background: transparent;
+            padding: 5px;
+            margin: 0;
+            box-shadow: none;
+        }
+        
+        .option-group input[type="text"]:focus {
+            box-shadow: none;
+            border: none;
+            background: transparent;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 25px;
+            transition: var(--transition);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-submit:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .btn-submit svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        /* تنسيق التنبيهات (بديل الأليرت) */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background-color: var(--text-main);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast.success { background-color: var(--success-color); }
+        .toast.error { background-color: var(--error-color); }
+
+        /* لودنج التحميل */
+        .loader {
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top: 3px solid white;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
     </style>
 </head>
 <body>
@@ -49,65 +263,123 @@
     <h2>أداة كوزات التليكرام</h2>
     <div class="subtitle">خاصة بقناة: علم الامراض/المرحلة الثالثة</div>
     
-    <input type="text" id="botToken" placeholder="توكن البوت (Bot Token)">
-    <div class="save-note">يُكتب مرة واحدة فقط وسيُحفظ في المتصفح (ويرجى عدم مشاركته لأي احد)</div>
+    <div class="input-group">
+        <label for="botToken">إعدادات البوت</label>
+        <input type="text" id="botToken" placeholder="ضع توكن البوت هنا (Bot Token)...">
+        <span class="save-note">🔒 يُكتب مرة واحدة فقط وسيُحفظ بأمان في متصفحك. لا تشاركه مع أحد.</span>
+    </div>
     
-    <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+    <hr class="divider">
     
-    <input type="text" id="question" placeholder="اكتب السؤال هنا..." required>
+    <div class="input-group">
+        <label for="question">نص السؤال</label>
+        <input type="text" id="question" placeholder="اكتب سؤال الكوز هنا..." required>
+    </div>
     
-    <div class="save-note" style="margin-bottom: 10px; text-align: right; color: #444;">
-        * حدد الدائرة بجانب الجواب الصحيح. املأ خيارين على الأقل.
+    <div style="margin-bottom: 12px;">
+        <label>خيارات الإجابة</label>
+        <span class="save-note" style="margin-top: -5px; margin-bottom: 10px;">✅ حدد الدائرة بجانب الجواب الصحيح (يجب كتابة خيارين على الأقل).</span>
     </div>
 
-    <div class="option-group">
-        <input type="radio" name="correct" value="0" checked title="الجواب الصحيح">
-        <input type="text" id="opt0" placeholder="الخيار الأول (مطلوب)">
-    </div>
-    <div class="option-group">
-        <input type="radio" name="correct" value="1" title="الجواب الصحيح">
-        <input type="text" id="opt1" placeholder="الخيار الثاني (مطلوب)">
-    </div>
-    <div class="option-group">
-        <input type="radio" name="correct" value="2" title="الجواب الصحيح">
-        <input type="text" id="opt2" placeholder="الخيار الثالث (اختياري)">
-    </div>
-    <div class="option-group">
-        <input type="radio" name="correct" value="3" title="الجواب الصحيح">
-        <input type="text" id="opt3" placeholder="الخيار الرابع (اختياري)">
-    </div>
-    <div class="option-group">
-        <input type="radio" name="correct" value="4" title="الجواب الصحيح">
-        <input type="text" id="opt4" placeholder="الخيار الخامس (اختياري)">
+    <div class="options-wrapper" id="optionsWrapper">
+        <div class="option-group active">
+            <input type="radio" name="correct" value="0" checked title="الجواب الصحيح">
+            <input type="text" id="opt0" placeholder="الخيار الأول (مطلوب)">
+        </div>
+        <div class="option-group">
+            <input type="radio" name="correct" value="1" title="الجواب الصحيح">
+            <input type="text" id="opt1" placeholder="الخيار الثاني (مطلوب)">
+        </div>
+        <div class="option-group">
+            <input type="radio" name="correct" value="2" title="الجواب الصحيح">
+            <input type="text" id="opt2" placeholder="الخيار الثالث (اختياري)">
+        </div>
+        <div class="option-group">
+            <input type="radio" name="correct" value="3" title="الجواب الصحيح">
+            <input type="text" id="opt3" placeholder="الخيار الرابع (اختياري)">
+        </div>
+        <div class="option-group">
+            <input type="radio" name="correct" value="4" title="الجواب الصحيح">
+            <input type="text" id="opt4" placeholder="الخيار الخامس (اختياري)">
+        </div>
     </div>
 
-    <button onclick="sendQuiz()">إرسال الكوز للقناة 🚀</button>
+    <button class="btn-submit" onclick="sendQuiz()" id="submitBtn">
+        <span id="btnText">إرسال الكوز للقناة</span>
+        <svg id="btnIcon" viewBox="0 0 24 24">
+            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
+        </svg>
+        <div class="loader" id="btnLoader"></div>
+    </button>
 </div>
 
+<!-- حاوية التنبيهات -->
+<div class="toast-container" id="toastContainer"></div>
+
 <script>
-    // معرف القناة ثابت ومدمج بالكود (مخفي عن الدكتورة)
-    const CHAT_ID = "-1003123625903";
+    // معرف القناة (مخفي عن المستخدمين)
+    const CHAT_ID = "-1003937179664";
+
+    // دالة لعرض التنبيهات المنبثقة بدلاً من alert المزعج
+    function showToast(message, type = 'success') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerText = message;
+        
+        container.appendChild(toast);
+        
+        // إظهار التنبيه بـ انيميشن
+        setTimeout(() => toast.classList.add('show'), 10);
+        
+        // إخفاء وحذف التنبيه بعد 3 ثواني
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 3500);
+    }
+
+    // تمييز الخيار الصحيح بصرياً عند اختياره
+    const radios = document.querySelectorAll('input[type="radio"]');
+    radios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            // إزالة التمييز من كل الخيارات
+            document.querySelectorAll('.option-group').forEach(group => {
+                group.classList.remove('active');
+            });
+            // إضافة التمييز للخيار المحدد
+            if(this.checked) {
+                this.parentElement.classList.add('active');
+            }
+        });
+    });
 
     // استرجاع توكن البوت المحفوظ عند فتح الصفحة
     window.onload = function() {
-        if(localStorage.getItem('savedBotToken')) {
-            document.getElementById('botToken').value = localStorage.getItem('savedBotToken');
+        const savedToken = localStorage.getItem('savedBotToken');
+        if(savedToken) {
+            document.getElementById('botToken').value = savedToken;
         }
     };
 
+    // دالة الإرسال الرئيسية
     function sendQuiz() {
         const token = document.getElementById('botToken').value.trim();
         const question = document.getElementById('question').value.trim();
+        const btn = document.getElementById('submitBtn');
+        const btnText = document.getElementById('btnText');
+        const btnIcon = document.getElementById('btnIcon');
+        const btnLoader = document.getElementById('btnLoader');
         
         // حفظ التوكن في المتصفح
         if(token) {
             localStorage.setItem('savedBotToken', token);
         }
 
-        // جلب الخيارات المكتوبة فقط (تجاهل الحقول الفارغة)
+        // جلب الخيارات المكتوبة فقط
         let options = [];
         let originalIndices = [];
-        for(let i=0; i<5; i++) { // التكرار صار لـ 5 خيارات
+        for(let i=0; i<5; i++) {
             let val = document.getElementById('opt'+i).value.trim();
             if(val !== "") {
                 options.push(val);
@@ -120,19 +392,34 @@
         const correctIndex = originalIndices.indexOf(selectedRadio);
 
         // التحقق من المدخلات
-        if(!token || !question || options.length < 2) {
-            alert("رجاءً تأكد من إدخال التوكن، السؤال، وخيارين على الأقل.");
+        if(!token) {
+            showToast("رجاءً قم بإدخال توكن البوت أولاً.", "error");
+            return;
+        }
+        if(!question) {
+            showToast("رجاءً اكتب نص السؤال.", "error");
+            document.getElementById('question').focus();
+            return;
+        }
+        if(options.length < 2) {
+            showToast("يجب إدخال خيارين للإجابة على الأقل.", "error");
             return;
         }
         if(correctIndex === -1) {
-            alert("الخيار الذي حددته كجواب صحيح غير مكتوب! (حقل فارغ)");
+            showToast("الخيار الذي حددته كجواب صحيح فارغ! الرجاء كتابته.", "error");
             return;
         }
+
+        // إظهار حالة التحميل
+        btn.disabled = true;
+        btnText.style.display = 'none';
+        btnIcon.style.display = 'none';
+        btnLoader.style.display = 'block';
 
         // إرسال الطلب لـ Telegram API
         const url = `https://api.telegram.org/bot${token}/sendPoll`;
         const data = {
-            chat_id: CHAT_ID, // استخدام المعرف المدمج
+            chat_id: CHAT_ID,
             question: question,
             options: JSON.stringify(options),
             type: "quiz",
@@ -147,20 +434,35 @@
         .then(response => response.json())
         .then(res => {
             if(res.ok) {
-                alert("تم إرسال الكوز بنجاح! ✅");
-                // تصفير جميع الحقول لتسهيل كتابة السؤال التالي
+                showToast("تم إرسال الكوز إلى القناة بنجاح! 🚀", "success");
+                
+                // تصفير الحقول
                 document.getElementById('question').value = ''; 
                 for(let i=0; i<5; i++) {
                     document.getElementById('opt'+i).value = '';
                 }
-                document.querySelector('input[name="correct"][value="0"]').checked = true;
+                // إعادة تحديد الخيار الأول كافتراضي
+                const firstRadio = document.querySelector('input[name="correct"][value="0"]');
+                firstRadio.checked = true;
+                
+                // تحديث الواجهة لتفعيل الخيار الأول
+                document.querySelectorAll('.option-group').forEach(group => group.classList.remove('active'));
+                firstRadio.parentElement.classList.add('active');
+                
             } else {
-                alert("صار خطأ: " + res.description);
+                showToast("حدث خطأ: " + res.description, "error");
             }
         })
         .catch(err => {
-            alert("خطأ بالاتصال بالانترنت أو السيرفر.");
+            showToast("خطأ في الاتصال. تأكد من الإنترنت أو صحة التوكن.", "error");
             console.error(err);
+        })
+        .finally(() => {
+            // إعادة الزر لحالته الطبيعية
+            btn.disabled = false;
+            btnText.style.display = 'block';
+            btnIcon.style.display = 'block';
+            btnLoader.style.display = 'none';
         });
     }
 </script>
