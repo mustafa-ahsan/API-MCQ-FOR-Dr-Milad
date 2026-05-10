@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أداة إرسال كوزات التليكرام</title>
+    <title>أداة إرسال كوزات التليكرام المتعددة</title>
     <!-- استدعاء خط Cairo للحصول على مظهر عربي عصري -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -29,18 +29,20 @@
             padding: 20px;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             min-height: 100vh;
+            box-sizing: border-box;
         }
 
         .container {
             background: var(--card-bg);
             width: 100%;
-            max-width: 500px;
+            max-width: 600px;
             padding: 30px 25px;
             border-radius: var(--radius);
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
             position: relative;
+            margin-bottom: 40px;
         }
 
         h2 {
@@ -104,17 +106,66 @@
             border: none;
         }
 
+        /* تنسيقات الكوز المتعدد */
+        .quiz-block {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .quiz-block:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed var(--border-color);
+        }
+
+        .quiz-header h3 {
+            margin: 0;
+            font-size: 16px;
+            color: var(--primary-color);
+        }
+
+        .btn-remove {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error-color);
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-remove:hover {
+            background: var(--error-color);
+            color: white;
+        }
+
         .options-wrapper {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
         }
 
         .option-group {
             display: flex;
             align-items: center;
-            background: #f8fafc;
-            padding: 10px 15px;
+            background: #ffffff;
+            padding: 8px 12px;
             border-radius: 8px;
             border: 1px solid var(--border-color);
             transition: var(--transition);
@@ -123,7 +174,7 @@
         .option-group.active {
             background-color: #f0fdf4;
             border-color: var(--success-color);
-            box-shadow: 0 2px 4px rgba(16, 185, 129, 0.1);
+            box-shadow: 0 2px 4px rgba(16, 185, 129, 0.05);
         }
 
         .option-group input[type="radio"] {
@@ -133,7 +184,7 @@
             height: 20px;
             border: 2px solid var(--border-color);
             border-radius: 50%;
-            margin-left: 15px;
+            margin-left: 12px;
             outline: none;
             cursor: pointer;
             position: relative;
@@ -171,10 +222,40 @@
             background: transparent;
         }
 
+        /* أزرار التحكم السفلية */
+        .actions-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .btn-add {
+            width: 100%;
+            padding: 12px;
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 2px dashed var(--primary-color);
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-add:hover {
+            background-color: rgba(59, 130, 246, 0.05);
+        }
+
         .btn-submit {
             width: 100%;
             padding: 14px;
-            background-color: var(--primary-color);
+            background-color: var(--success-color);
             color: white;
             border: none;
             border-radius: 8px;
@@ -182,7 +263,6 @@
             font-family: 'Cairo', sans-serif;
             font-weight: 700;
             cursor: pointer;
-            margin-top: 25px;
             transition: var(--transition);
             display: flex;
             justify-content: center;
@@ -190,14 +270,21 @@
             gap: 10px;
         }
 
-        .btn-submit:hover {
-            background-color: var(--primary-hover);
+        .btn-submit:hover:not(:disabled) {
+            background-color: #059669; /* درجة أغمق للنجاح */
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
         }
 
-        .btn-submit:active {
+        .btn-submit:active:not(:disabled) {
             transform: translateY(0);
+        }
+
+        .btn-submit:disabled {
+            background-color: #94a3b8;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
 
         .btn-submit svg {
@@ -206,7 +293,7 @@
             fill: currentColor;
         }
 
-        /* تنسيق التنبيهات (بديل الأليرت) */
+        /* تنسيق التنبيهات */
         .toast-container {
             position: fixed;
             bottom: 20px;
@@ -229,6 +316,8 @@
             opacity: 0;
             transform: translateY(20px);
             transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            text-align: center;
+            min-width: 250px;
         }
 
         .toast.show {
@@ -238,6 +327,7 @@
 
         .toast.success { background-color: var(--success-color); }
         .toast.error { background-color: var(--error-color); }
+        .toast.info { background-color: var(--primary-color); }
 
         /* لودنج التحميل */
         .loader {
@@ -260,7 +350,7 @@
 <body>
 
 <div class="container">
-    <h2>أداة كوزات التليكرام</h2>
+    <h2>أداة كوزات التليكرام المتعددة</h2>
     <div class="subtitle">خاصة بقناة: علم الامراض/المرحلة الثالثة</div>
     
     <div class="input-group">
@@ -271,46 +361,24 @@
     
     <hr class="divider">
     
-    <div class="input-group">
-        <label for="question">نص السؤال</label>
-        <input type="text" id="question" placeholder="اكتب سؤال الكوز هنا..." required>
-    </div>
-    
-    <div style="margin-bottom: 12px;">
-        <label>خيارات الإجابة</label>
-        <span class="save-note" style="margin-top: -5px; margin-bottom: 10px;">✅ حدد الدائرة بجانب الجواب الصحيح (يجب كتابة خيارين على الأقل).</span>
+    <!-- حاوية الكوزات -->
+    <div id="quizzesContainer">
+        <!-- سيتم إضافة الكوزات هنا ديناميكياً، الكوز الأول كافتراضي -->
     </div>
 
-    <div class="options-wrapper" id="optionsWrapper">
-        <div class="option-group active">
-            <input type="radio" name="correct" value="0" checked title="الجواب الصحيح">
-            <input type="text" id="opt0" placeholder="الخيار الأول (مطلوب)">
-        </div>
-        <div class="option-group">
-            <input type="radio" name="correct" value="1" title="الجواب الصحيح">
-            <input type="text" id="opt1" placeholder="الخيار الثاني (مطلوب)">
-        </div>
-        <div class="option-group">
-            <input type="radio" name="correct" value="2" title="الجواب الصحيح">
-            <input type="text" id="opt2" placeholder="الخيار الثالث (اختياري)">
-        </div>
-        <div class="option-group">
-            <input type="radio" name="correct" value="3" title="الجواب الصحيح">
-            <input type="text" id="opt3" placeholder="الخيار الرابع (اختياري)">
-        </div>
-        <div class="option-group">
-            <input type="radio" name="correct" value="4" title="الجواب الصحيح">
-            <input type="text" id="opt4" placeholder="الخيار الخامس (اختياري)">
-        </div>
-    </div>
+    <div class="actions-container">
+        <button class="btn-add" onclick="addNewQuizBlock()">
+            إضافة كوز جديد ➕
+        </button>
 
-    <button class="btn-submit" onclick="sendQuiz()" id="submitBtn">
-        <span id="btnText">إرسال الكوز للقناة</span>
-        <svg id="btnIcon" viewBox="0 0 24 24">
-            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
-        </svg>
-        <div class="loader" id="btnLoader"></div>
-    </button>
+        <button class="btn-submit" onclick="sendAllQuizzes()" id="submitBtn">
+            <span id="btnText">إرسال جميع الكوزات للقناة</span>
+            <svg id="btnIcon" viewBox="0 0 24 24">
+                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
+            </svg>
+            <div class="loader" id="btnLoader"></div>
+        </button>
+    </div>
 </div>
 
 <!-- حاوية التنبيهات -->
@@ -318,10 +386,11 @@
 
 <script>
     // معرف القناة (مخفي عن المستخدمين)
-    const CHAT_ID = "-1003123625903";
+    const CHAT_ID = "@gdjdjdjdjsj";
+    let quizCounter = 0; // معرف فريد لكل كوز لتفادي تداخل أزرار الراديو
 
-    // دالة لعرض التنبيهات المنبثقة بدلاً من alert المزعج
-    function showToast(message, type = 'success') {
+    // دالة لعرض التنبيهات
+    function showToast(message, type = 'success', duration = 3500) {
         const container = document.getElementById('toastContainer');
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
@@ -332,138 +401,250 @@
         // إظهار التنبيه بـ انيميشن
         setTimeout(() => toast.classList.add('show'), 10);
         
-        // إخفاء وحذف التنبيه بعد 3 ثواني
+        // إخفاء وحذف التنبيه
         setTimeout(() => {
             toast.classList.remove('show');
             setTimeout(() => toast.remove(), 300);
-        }, 3500);
+        }, duration);
     }
 
-    // تمييز الخيار الصحيح بصرياً عند اختياره
-    const radios = document.querySelectorAll('input[type="radio"]');
-    radios.forEach(radio => {
-        radio.addEventListener('change', function() {
-            // إزالة التمييز من كل الخيارات
-            document.querySelectorAll('.option-group').forEach(group => {
-                group.classList.remove('active');
-            });
-            // إضافة التمييز للخيار المحدد
-            if(this.checked) {
-                this.parentElement.classList.add('active');
+    // إضافة كوز جديد للواجهة
+    function addNewQuizBlock() {
+        quizCounter++;
+        const container = document.getElementById('quizzesContainer');
+        const block = document.createElement('div');
+        block.className = 'quiz-block';
+        block.id = `quizBlock_${quizCounter}`;
+        
+        block.innerHTML = `
+            <div class="quiz-header">
+                <h3 class="quiz-title">كوز #<span class="quiz-number"></span></h3>
+                <button class="btn-remove" onclick="removeQuizBlock('${block.id}')">حذف 🗑️</button>
+            </div>
+            
+            <div class="input-group">
+                <label>نص السؤال</label>
+                <input type="text" class="question-input" placeholder="اكتب سؤال الكوز هنا..." required>
+            </div>
+            
+            <div style="margin-bottom: 12px;">
+                <label>خيارات الإجابة</label>
+                <span class="save-note" style="margin-top: -5px; margin-bottom: 10px;">✅ حدد الدائرة بجانب الجواب الصحيح (خيارين على الأقل).</span>
+            </div>
+
+            <div class="options-wrapper">
+                <div class="option-group active">
+                    <input type="radio" name="correct_${quizCounter}" value="0" checked>
+                    <input type="text" class="option-input" placeholder="الخيار الأول (مطلوب)">
+                </div>
+                <div class="option-group">
+                    <input type="radio" name="correct_${quizCounter}" value="1">
+                    <input type="text" class="option-input" placeholder="الخيار الثاني (مطلوب)">
+                </div>
+                <div class="option-group">
+                    <input type="radio" name="correct_${quizCounter}" value="2">
+                    <input type="text" class="option-input" placeholder="الخيار الثالث (اختياري)">
+                </div>
+                <div class="option-group">
+                    <input type="radio" name="correct_${quizCounter}" value="3">
+                    <input type="text" class="option-input" placeholder="الخيار الرابع (اختياري)">
+                </div>
+                <div class="option-group">
+                    <input type="radio" name="correct_${quizCounter}" value="4">
+                    <input type="text" class="option-input" placeholder="الخيار الخامس (اختياري)">
+                </div>
+            </div>
+        `;
+        
+        container.appendChild(block);
+        attachRadioListeners(block);
+        updateQuizNumbers();
+        
+        // تمرير الشاشة للأسفل بسلاسة لرؤية الكوز الجديد
+        block.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // حذف كوز
+    function removeQuizBlock(blockId) {
+        const container = document.getElementById('quizzesContainer');
+        if (container.children.length <= 1) {
+            showToast("يجب أن يكون هناك كوز واحد على الأقل.", "error");
+            return;
+        }
+        document.getElementById(blockId).remove();
+        updateQuizNumbers();
+    }
+
+    // تحديث أرقام الكوزات في العناوين
+    function updateQuizNumbers() {
+        const blocks = document.querySelectorAll('.quiz-block');
+        blocks.forEach((block, index) => {
+            block.querySelector('.quiz-number').innerText = (index + 1);
+            // إخفاء زر الحذف إذا كان هناك كوز واحد فقط
+            const removeBtn = block.querySelector('.btn-remove');
+            if (blocks.length === 1) {
+                removeBtn.style.display = 'none';
+            } else {
+                removeBtn.style.display = 'block';
             }
         });
-    });
+    }
 
-    // استرجاع توكن البوت المحفوظ عند فتح الصفحة
+    // تفعيل تأثير الألوان عند اختيار الراديو
+    function attachRadioListeners(block) {
+        const radios = block.querySelectorAll('input[type="radio"]');
+        radios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                // إزالة التمييز من الخيارات داخل هذا الكوز فقط
+                block.querySelectorAll('.option-group').forEach(group => {
+                    group.classList.remove('active');
+                });
+                // إضافة التمييز للخيار المحدد
+                if(this.checked) {
+                    this.parentElement.classList.add('active');
+                }
+            });
+        });
+    }
+
+    // استرجاع البيانات المحفوظة والتمهيد
     window.onload = function() {
         const savedToken = localStorage.getItem('savedBotToken');
         if(savedToken) {
             document.getElementById('botToken').value = savedToken;
         }
+        // إضافة الكوز الأول عند تحميل الصفحة
+        addNewQuizBlock();
     };
 
-    // دالة الإرسال الرئيسية
-    function sendQuiz() {
+    // دالة تأخير لتجنب حظر API تيليجرام عند الإرسال السريع
+    const delay = ms => new Promise(res => setTimeout(res, ms));
+
+    // إرسال جميع الكوزات
+    async function sendAllQuizzes() {
         const token = document.getElementById('botToken').value.trim();
-        const question = document.getElementById('question').value.trim();
+        const blocks = document.querySelectorAll('.quiz-block');
+        
+        if(!token) {
+            showToast("رجاءً قم بإدخال توكن البوت أولاً.", "error");
+            document.getElementById('botToken').focus();
+            return;
+        }
+
+        // 1. جمع البيانات والتحقق من صحتها
+        let quizzesData = [];
+        for (let i = 0; i < blocks.length; i++) {
+            const block = blocks[i];
+            const quizNum = i + 1;
+            
+            const question = block.querySelector('.question-input').value.trim();
+            if (!question) {
+                showToast(`رجاءً اكتب نص السؤال في الكوز #${quizNum}`, "error");
+                block.querySelector('.question-input').focus();
+                return;
+            }
+
+            const optionInputs = block.querySelectorAll('.option-input');
+            const radios = block.querySelectorAll('input[type="radio"]');
+            
+            let options = [];
+            let originalIndices = [];
+            
+            optionInputs.forEach((input, index) => {
+                const val = input.value.trim();
+                if (val !== "") {
+                    options.push(val);
+                    originalIndices.push(index.toString());
+                }
+            });
+
+            if (options.length < 2) {
+                showToast(`يجب إدخال خيارين على الأقل في الكوز #${quizNum}`, "error");
+                return;
+            }
+
+            const selectedRadio = Array.from(radios).find(r => r.checked);
+            const correctIndex = originalIndices.indexOf(selectedRadio.value);
+
+            if (correctIndex === -1) {
+                showToast(`الخيار الصحيح المُحدد فارغ في الكوز #${quizNum}! الرجاء كتابته.`, "error");
+                return;
+            }
+
+            quizzesData.push({
+                question: question,
+                options: options,
+                correctIndex: correctIndex
+            });
+        }
+
+        // 2. التحضير للإرسال
+        localStorage.setItem('savedBotToken', token);
         const btn = document.getElementById('submitBtn');
         const btnText = document.getElementById('btnText');
         const btnIcon = document.getElementById('btnIcon');
         const btnLoader = document.getElementById('btnLoader');
-        
-        // حفظ التوكن في المتصفح
-        if(token) {
-            localStorage.setItem('savedBotToken', token);
-        }
 
-        // جلب الخيارات المكتوبة فقط
-        let options = [];
-        let originalIndices = [];
-        for(let i=0; i<5; i++) {
-            let val = document.getElementById('opt'+i).value.trim();
-            if(val !== "") {
-                options.push(val);
-                originalIndices.push(i.toString());
-            }
-        }
-
-        // تحديد الجواب الصحيح
-        const selectedRadio = document.querySelector('input[name="correct"]:checked').value;
-        const correctIndex = originalIndices.indexOf(selectedRadio);
-
-        // التحقق من المدخلات
-        if(!token) {
-            showToast("رجاءً قم بإدخال توكن البوت أولاً.", "error");
-            return;
-        }
-        if(!question) {
-            showToast("رجاءً اكتب نص السؤال.", "error");
-            document.getElementById('question').focus();
-            return;
-        }
-        if(options.length < 2) {
-            showToast("يجب إدخال خيارين للإجابة على الأقل.", "error");
-            return;
-        }
-        if(correctIndex === -1) {
-            showToast("الخيار الذي حددته كجواب صحيح فارغ! الرجاء كتابته.", "error");
-            return;
-        }
-
-        // إظهار حالة التحميل
         btn.disabled = true;
-        btnText.style.display = 'none';
         btnIcon.style.display = 'none';
         btnLoader.style.display = 'block';
 
-        // إرسال الطلب لـ Telegram API
-        const url = `https://api.telegram.org/bot${token}/sendPoll`;
-        const data = {
-            chat_id: CHAT_ID,
-            question: question,
-            options: JSON.stringify(options),
-            type: "quiz",
-            correct_option_id: correctIndex
-        };
+        let successCount = 0;
 
-        fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(res => {
-            if(res.ok) {
-                showToast("تم إرسال الكوز إلى القناة بنجاح! 🚀", "success");
-                
-                // تصفير الحقول
-                document.getElementById('question').value = ''; 
-                for(let i=0; i<5; i++) {
-                    document.getElementById('opt'+i).value = '';
+        // 3. إرسال الكوزات بالتسلسل
+        for (let i = 0; i < quizzesData.length; i++) {
+            const data = quizzesData[i];
+            btnText.innerText = `جاري إرسال (${i + 1}/${quizzesData.length})...`;
+            
+            const url = `https://api.telegram.org/bot${token}/sendPoll`;
+            const payload = {
+                chat_id: CHAT_ID,
+                question: data.question,
+                options: JSON.stringify(data.options),
+                type: "quiz",
+                correct_option_id: data.correctIndex
+            };
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const res = await response.json();
+
+                if (res.ok) {
+                    successCount++;
+                } else {
+                    showToast(`فشل إرسال الكوز #${i + 1}: ${res.description}`, "error", 5000);
                 }
-                // إعادة تحديد الخيار الأول كافتراضي
-                const firstRadio = document.querySelector('input[name="correct"][value="0"]');
-                firstRadio.checked = true;
-                
-                // تحديث الواجهة لتفعيل الخيار الأول
-                document.querySelectorAll('.option-group').forEach(group => group.classList.remove('active'));
-                firstRadio.parentElement.classList.add('active');
-                
-            } else {
-                showToast("حدث خطأ: " + res.description, "error");
+            } catch (err) {
+                showToast(`خطأ في الاتصال عند إرسال الكوز #${i + 1}`, "error", 5000);
+                console.error(err);
             }
-        })
-        .catch(err => {
-            showToast("خطأ في الاتصال. تأكد من الإنترنت أو صحة التوكن.", "error");
-            console.error(err);
-        })
-        .finally(() => {
-            // إعادة الزر لحالته الطبيعية
-            btn.disabled = false;
-            btnText.style.display = 'block';
-            btnIcon.style.display = 'block';
-            btnLoader.style.display = 'none';
-        });
+
+            // تأخير بسيط بين كل رسالة والأخرى لتجنب قيود تيليجرام (Rate limit)
+            if (i < quizzesData.length - 1) {
+                await delay(500); 
+            }
+        }
+
+        // 4. إنهاء وإعادة تعيين الواجهة
+        if (successCount === quizzesData.length) {
+            showToast(`تم إرسال جميع الكوزات (${successCount}) بنجاح! 🚀`, "success");
+            
+            // إعادة تعيين الواجهة لكوز واحد فارغ
+            document.getElementById('quizzesContainer').innerHTML = '';
+            addNewQuizBlock();
+        } else if (successCount > 0) {
+            showToast(`تم إرسال ${successCount} من أصل ${quizzesData.length} كوز.`, "info", 6000);
+        }
+
+        // إعادة الزر لحالته الطبيعية
+        btn.disabled = false;
+        btnText.innerText = 'إرسال جميع الكوزات للقناة';
+        btnIcon.style.display = 'block';
+        btnLoader.style.display = 'none';
     }
 </script>
 
