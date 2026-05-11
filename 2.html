@@ -602,12 +602,11 @@
                 <input type="text" class="question-input" placeholder="اكتب سؤال الكوز هنا..." value="${question}" required>
             </div>
             
-            <!-- إضافة خيار إرفاق صورة هنا -->
             <div class="input-group">
                 <label>صورة توضيحية للسؤال (اختياري) 🖼️</label>
-                <input type="file" class="quiz-image-input" accept="image/*" style="width: 100%; padding: 8px; border: 1px dashed var(--primary-color); border-radius: 8px; background: #fff; cursor: pointer; font-family: 'Cairo', sans-serif; font-size: 13px;">
+                <input type="file" class="image-input" accept="image/*" style="width: 100%; padding: 10px; border: 1px dashed var(--border-color); border-radius: 8px; background: #f8fafc; cursor: pointer; font-family: 'Cairo', sans-serif; box-sizing: border-box;">
             </div>
-            
+
             <div style="margin-bottom: 12px;">
                 <label>خيارات الإجابة</label>
                 <span class="save-note" style="margin-top: -5px; margin-bottom: 10px;">✅ حدد الدائرة بجانب الجواب الصحيح.</span>
@@ -775,8 +774,7 @@
 
             let aiText = data.candidates[0].content.parts[0].text;
             
-            aiText = aiText.replace(/```json/gi, '').replace(/
-```/gi, '').trim();
+            aiText = aiText.replace(/```json/gi, '').replace(/```/gi, '').trim();
             const generatedQuizzes = JSON.parse(aiText);
 
             document.getElementById('quizzesContainer').innerHTML = '';
@@ -828,9 +826,9 @@
                 return;
             }
 
-            // جلب الصورة إن وجدت
-            const imageInput = block.querySelector('.quiz-image-input');
-            const imageFile = imageInput && imageInput.files.length > 0 ? imageInput.files[0] : null;
+            // استخراج الصورة
+            const imgInput = block.querySelector('.image-input');
+            const fileObj = imgInput && imgInput.files.length > 0 ? imgInput.files[0] : null;
 
             const optionInputs = block.querySelectorAll('.option-input');
             const radios = block.querySelectorAll('input[type="radio"]');
@@ -863,7 +861,7 @@
                 question: question,
                 options: options,
                 correctIndex: correctIndex,
-                imageFile: imageFile // حفظ ملف الصورة في المصفوفة
+                imageFile: fileObj
             });
         }
 
@@ -883,25 +881,23 @@
             const data = quizzesData[i];
             btnText.innerText = `جاري إرسال (${i + 1}/${quizzesData.length})...`;
             
-            // إرسال الصورة أولاً إذا كانت مرفقة
+            // إرسال الصورة إذا كانت موجودة
             if (data.imageFile) {
-                const photoUrl = `https://api.telegram.org/bot${token}/sendPhoto`;
-                const photoFormData = new FormData();
-                photoFormData.append('chat_id', CHAT_ID);
-                photoFormData.append('photo', data.imageFile);
+                const formData = new FormData();
+                formData.append('chat_id', CHAT_ID);
+                formData.append('photo', data.imageFile);
                 
                 try {
-                    await fetch(photoUrl, {
+                    await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
                         method: 'POST',
-                        body: photoFormData
+                        body: formData
                     });
-                    await delay(1000); // انتظار ثانية بين إرسال الصورة وإرسال الكوز لتكون الصورة فوق الكوز مباشرة
-                } catch (err) {
-                    console.error(`خطأ في إرسال الصورة للكوز #${i + 1}:`, err);
+                    await delay(1000); // تأخير بسيط ليتم ترتيب الصورة قبل الكوز
+                } catch(e) {
+                    console.error("خطأ في رفع الصورة", e);
                 }
             }
 
-            // إرسال الكوز (Poll)
             const url = `https://api.telegram.org/bot${token}/sendPoll`;
             const payload = {
                 chat_id: CHAT_ID,
