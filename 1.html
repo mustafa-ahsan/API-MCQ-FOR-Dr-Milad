@@ -602,6 +602,11 @@
                 <input type="text" class="question-input" placeholder="اكتب سؤال الكوز هنا..." value="${question}" required>
             </div>
             
+            <div class="input-group">
+                <label>صورة توضيحية للسؤال (اختياري) 🖼️</label>
+                <input type="file" class="image-input" accept="image/*" style="width: 100%; padding: 10px; border: 1px dashed var(--border-color); border-radius: 8px; background: #f8fafc; cursor: pointer; font-family: 'Cairo', sans-serif; box-sizing: border-box;">
+            </div>
+
             <div style="margin-bottom: 12px;">
                 <label>خيارات الإجابة</label>
                 <span class="save-note" style="margin-top: -5px; margin-bottom: 10px;">✅ حدد الدائرة بجانب الجواب الصحيح.</span>
@@ -821,6 +826,10 @@
                 return;
             }
 
+            // استخراج الصورة
+            const imgInput = block.querySelector('.image-input');
+            const fileObj = imgInput && imgInput.files.length > 0 ? imgInput.files[0] : null;
+
             const optionInputs = block.querySelectorAll('.option-input');
             const radios = block.querySelectorAll('input[type="radio"]');
             
@@ -851,7 +860,8 @@
             quizzesData.push({
                 question: question,
                 options: options,
-                correctIndex: correctIndex
+                correctIndex: correctIndex,
+                imageFile: fileObj
             });
         }
 
@@ -871,6 +881,23 @@
             const data = quizzesData[i];
             btnText.innerText = `جاري إرسال (${i + 1}/${quizzesData.length})...`;
             
+            // إرسال الصورة إذا كانت موجودة
+            if (data.imageFile) {
+                const formData = new FormData();
+                formData.append('chat_id', CHAT_ID);
+                formData.append('photo', data.imageFile);
+                
+                try {
+                    await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    await delay(1000); // تأخير بسيط ليتم ترتيب الصورة قبل الكوز
+                } catch(e) {
+                    console.error("خطأ في رفع الصورة", e);
+                }
+            }
+
             const url = `https://api.telegram.org/bot${token}/sendPoll`;
             const payload = {
                 chat_id: CHAT_ID,
