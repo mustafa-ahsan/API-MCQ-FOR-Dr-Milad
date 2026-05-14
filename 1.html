@@ -687,7 +687,7 @@
     }
 
     // ----------------------------------------------------
-    // قسم الذكاء الاصطناعي (محدث لإجبار المودل على 5 خيارات)
+    // قسم الذكاء الاصطناعي
     // ----------------------------------------------------
     async function generateAIQuizzesFromFile() {
         const apiKey = document.getElementById('aiApiKey').value.trim();
@@ -715,7 +715,6 @@
         btnText.style.display = 'none';
         loader.style.display = 'block';
 
-        // تم تشديد الأوامر هنا لإجبار المودل على 5 خيارات حرفياً
         const prompt = `
         أنت أستاذ جامعي وطبيب. بناءً على محتوى الملف الطبي المرفق، قم بصياغة ${count} أسئلة اختيار من متعدد (MCQ) باللغة الانجليزية بمستوى امتحانات كليات الطب.
         
@@ -779,6 +778,22 @@
             document.getElementById('quizzesContainer').innerHTML = '';
             
             generatedQuizzes.forEach(quiz => {
+                // =========================================
+                // نظام الخلط العشوائي 100% برمجياً (Shuffle)
+                // =========================================
+                // حفظ نص الإجابة الصحيحة قبل الخلط
+                let correctOptionText = quiz.options[quiz.correctIndex]; 
+                
+                // خلط مصفوفة الخيارات عشوائياً
+                for (let i = quiz.options.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [quiz.options[i], quiz.options[j]] = [quiz.options[j], quiz.options[i]];
+                }
+                
+                // البحث عن الموقع الجديد للإجابة الصحيحة بعد الخلط
+                quiz.correctIndex = quiz.options.indexOf(correctOptionText);
+                // =========================================
+
                 addNewQuizBlock(quiz.question, quiz.options, quiz.correctIndex);
             });
 
